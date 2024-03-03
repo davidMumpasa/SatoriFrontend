@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{ useState } from 'react';
 
 import {
   MDBBtn,
@@ -16,26 +16,49 @@ import {FaMicrosoft, FaApple, FaGoogle} from 'react-icons/fa';
 import '../Auth.css';
 import Swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 
 function SignIn() {
-  const handleLogin=()=>{
-    const Toast = Swal.mixin({
-      toast: true,
-      position: "top-end",
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true,
-      didOpen: (toast) => {
-        toast.onmouseenter = Swal.stopTimer;
-        toast.onmouseleave = Swal.resumeTimer;
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async () => {
+    let response;
+    if(email != "" || password!=""){
+      try {
+        // Make an API request to your backend
+        response = await axios.post('http://localhost:5000/login', {
+          email: email,
+          password: password,
+        });
+      
+      
+        // Display success message
+        Swal.fire({
+          timer: 3000,
+          title: 'Registration!',
+          text: response.data.user || 'Login successful', 
+          icon: 'success',
+        });
+        window.location.href = '/start';
+      } catch (error) {
+        // Display error message
+        Swal.fire({
+          icon: 'error',
+          title: 'Login Failed',
+          text: error.response.data.error,
+        });
       }
-    });
-    Toast.fire({
-      icon: "success",
-      title: "Signed in successfully"
-    });
-  }
+    } else{
+      Swal.fire({
+        icon: 'error',
+        title: 'Empty Form',
+        text: "Please Fill the Form",
+      });
+    }
+      
+    };
   
   return (
     <> 
@@ -72,14 +95,13 @@ function SignIn() {
             <p>Please login to your account</p>
 
 
-            <MDBInput wrapperClass='mb-4 mt-2' placeholder='Email address' id='form1' type='email' required/>
-            <MDBInput wrapperClass='mb-4 mt-2' placeholder='Password' id='form2' type='password' required/>
+            <MDBInput wrapperClass='mb-4 mt-2' placeholder='Email address' id='form1' type='email' required onChange={(e) => setEmail(e.target.value)}/>
+            <MDBInput wrapperClass='mb-4 mt-2' placeholder='Password' id='form2' type='password' required onChange={(e) => setPassword(e.target.value)}/>
 
 
             <div className="text-center pt-1 mb-5 pb-1 row">
               <MDBBtn className="mb-4 w-50 text-white " onClick={handleLogin} >
-               
-                <Link to='/start'>Sign In </Link> 
+                <Link >Sign In </Link> 
               </MDBBtn>
               <a className=" text-white" href="#!">Forgot password?</a>
             </div>
